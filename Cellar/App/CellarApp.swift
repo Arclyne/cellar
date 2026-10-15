@@ -6,7 +6,7 @@ struct CellarApp: App {
     @State private var library = BottleLibrary(dependencies: .live())
 
     var body: some Scene {
-        WindowGroup {
+        Window("Cellar", id: "library") {
             ContentView()
                 .environment(library)
                 .frame(minWidth: 820, minHeight: 520)
