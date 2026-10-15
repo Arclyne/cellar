@@ -1,0 +1,22 @@
+{
+  "id": "sparx-enterprise-architect",
+  "displayName": "Enterprise Architect",
+  "summary": "Sparx Systems modeling tool. Installs MSXML 3 and 4, MDAC 2.8 and Jet 4.0 before running easetup.msi or easetupfull.msi.",
+  "windowsVersion": "win10",
+  "winetricksVerbs": ["msxml3", "msxml4", "mdac28", "jet40"],
+  "dllOverrides": {
+    "*msado15": "native,builtin"
+  },
+  "installerFileExtensions": ["msi", "exe"],
+  "programCandidates": [
+    {
+      "displayName": "Enterprise Architect",
+      "windowsPath": "C:\\Program Files\\Sparx Systems\\EA\\EA.exe"
+    },
+    {
+      "displayName": "Enterprise Architect",
+      "windowsPath": "C:\\Program Files (x86)\\Sparx Systems\\EA\\EA.exe"
+    }
+  ],
+  "documentFileExtensions": ["qea", "qeax", "eap", "eapx", "feap"]
+}
