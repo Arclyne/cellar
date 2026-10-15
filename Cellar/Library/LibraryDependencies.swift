@@ -12,6 +12,7 @@ struct LibraryDependencies {
     let recipes: [InstallationRecipe]
     let documentHandlerFinder: DocumentHandlerFinding
     let programIconProvider: ProgramIconProviding
+    let programWindowLocator: ProgramWindowLocating
     let fileRevealer: FileRevealing
 }
 
@@ -56,6 +57,7 @@ extension LibraryDependencies {
             recipes: recipes,
             documentHandlerFinder: RecipeDocumentHandlerFinder(recipes: recipes),
             programIconProvider: PortableExecutableIconProvider(),
+            programWindowLocator: WindowServerProgramWindowLocator(),
             fileRevealer: WorkspaceFileRevealer()
         )
     }

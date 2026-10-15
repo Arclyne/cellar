@@ -29,10 +29,14 @@ final class ProcessCommandRunner: CommandRunning {
         }
     }
 
-    func launch(_ invocation: CommandInvocation) throws {
+    func launch(_ invocation: CommandInvocation, onExit: @escaping @Sendable (ProcessExit) -> Void) throws -> Int32 {
         let loggedProcess = try prepareProcess(for: invocation)
-        loggedProcess.process.terminationHandler = { _ in
+        loggedProcess.process.terminationHandler = { finishedProcess in
             loggedProcess.closeLog()
+            onExit(ProcessExit(
+                processIdentifier: finishedProcess.processIdentifier,
+                exitCode: finishedProcess.terminationStatus
+            ))
         }
         do {
             try loggedProcess.process.run()
@@ -41,6 +45,7 @@ final class ProcessCommandRunner: CommandRunning {
             loggedProcess.closeLog()
             throw error
         }
+        return loggedProcess.process.processIdentifier
     }
 
     private func prepareProcess(for invocation: CommandInvocation) throws -> LoggedProcess {
