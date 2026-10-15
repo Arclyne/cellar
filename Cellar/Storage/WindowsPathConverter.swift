@@ -2,6 +2,7 @@ import Foundation
 
 struct WindowsPathConverter {
     private static let driveCRoot = "C:\\"
+    private static let hostDriveRoot = "Z:\\"
     private static let hostDriveLetter = "Z:"
 
     let driveCDirectory: URL
@@ -17,14 +18,24 @@ struct WindowsPathConverter {
     }
 
     func unixURL(forWindowsPath windowsPath: String) -> URL? {
-        guard windowsPath.uppercased().hasPrefix(Self.driveCRoot) else { return nil }
-        let pathComponents = windowsPath
-            .dropFirst(Self.driveCRoot.count)
+        let uppercasedPath = windowsPath.uppercased()
+        if uppercasedPath.hasPrefix(Self.driveCRoot) {
+            return appendingComponents(of: windowsPath.dropFirst(Self.driveCRoot.count), to: driveCDirectory)
+        }
+        if uppercasedPath.hasPrefix(Self.hostDriveRoot) {
+            let hostRoot = URL(fileURLWithPath: "/", isDirectory: true)
+            return appendingComponents(of: windowsPath.dropFirst(Self.hostDriveRoot.count), to: hostRoot)
+        }
+        return nil
+    }
+
+    private func appendingComponents(of relativeWindowsPath: Substring, to baseURL: URL) -> URL {
+        relativeWindowsPath
             .split(separator: "\\")
             .map(String.init)
-        return pathComponents.reduce(driveCDirectory) { partialURL, pathComponent in
-            partialURL.appendingPathComponent(pathComponent)
-        }
+            .reduce(baseURL) { partialURL, pathComponent in
+                partialURL.appendingPathComponent(pathComponent)
+            }
     }
 
     private func backslashed(_ unixPath: String) -> String {

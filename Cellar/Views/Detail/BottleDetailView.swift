@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 import UniformTypeIdentifiers
 
@@ -53,7 +54,7 @@ struct BottleDetailView: View {
     private var programGrid: some View {
         LazyVGrid(columns: programGridColumns, alignment: .leading, spacing: 16) {
             ForEach(bottle.programs) { program in
-                ProgramTile(program: program)
+                ProgramTile(program: program, bottle: bottle)
                     .onTapGesture(count: 2) {
                         library.launch(program, in: bottle)
                     }
@@ -155,14 +156,15 @@ struct BottleHeader: View {
 
 struct ProgramTile: View {
     let program: BottleProgram
+    let bottle: Bottle
+
+    @Environment(BottleLibrary.self) private var library
+    @State private var programIcon: NSImage?
 
     var body: some View {
         VStack(spacing: 8) {
-            Image(systemName: "macwindow")
-                .font(.system(size: 30))
-                .foregroundStyle(.tint)
+            iconView
                 .frame(width: 64, height: 64)
-                .background(.quaternary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
             Text(program.displayName)
                 .font(.callout)
                 .multilineTextAlignment(.center)
@@ -172,5 +174,25 @@ struct ProgramTile: View {
         .padding(.vertical, 8)
         .contentShape(Rectangle())
         .help(program.windowsPath)
+        .task(id: program.windowsPath) {
+            guard let iconData = await library.iconData(for: program, in: bottle) else { return }
+            programIcon = NSImage(data: iconData)
+        }
+    }
+
+    @ViewBuilder
+    private var iconView: some View {
+        if let programIcon {
+            Image(nsImage: programIcon)
+                .resizable()
+                .interpolation(.high)
+                .aspectRatio(contentMode: .fit)
+        } else {
+            Image(systemName: "macwindow")
+                .font(.system(size: 30))
+                .foregroundStyle(.tint)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(.quaternary, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        }
     }
 }

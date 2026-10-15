@@ -10,6 +10,13 @@ Its first goal is running Sparx Systems **Enterprise Architect** on Apple silico
 - Install software with **recipes**: JSON files that declare the Windows version, the components to install with Winetricks, the DLL overrides, and where the installed programs live.
 - Launch installed programs with a double click.
 - Run any `.msi` or `.exe` installer in an existing bottle, add programs by hand, open the `C:` drive in Finder and read each bottle's log.
+- Show each program with the icon embedded in its `.exe`.
+- Open Enterprise Architect projects (`.qea`, `.qeax`, `.feap`) from Finder with a double click.
+- Find installed programs even when the installer picks a different folder, such as `EA Trial`.
+
+## Portable apps
+
+Programs that ship as a folder with a ready-to-run `.exe` need no installer. Create an empty bottle, copy the folder into its `C:` drive with **Open C: Drive**, and register the `.exe` with **Add Program…**.
 
 ## Requirements
 
@@ -87,7 +94,8 @@ Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
 | `Storage` | Bottle persistence, directory layout and Windows ↔ macOS path conversion |
 | `Process` | Running external commands and writing their output to the bottle log |
 | `Wine` | Locating Wine and Winetricks, preparing prefixes, installers, launching programs |
-| `Recipes` | Loading recipes and running a full installation |
+| `Recipes` | Loading recipes, running a full installation and finding the program that opens a document |
+| `Icons` | Reading icons from Windows executables |
 | `Library` | `BottleLibrary`, the observable state behind the UI, and its dependency wiring |
 | `Views` | SwiftUI screens |
 

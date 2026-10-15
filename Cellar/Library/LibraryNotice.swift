@@ -15,4 +15,18 @@ struct LibraryNotice: Identifiable, Equatable {
             message: "These components could not be installed: \(failedComponents.joined(separator: ", ")). Details are in \(logFile.path)."
         )
     }
+
+    static func noProgramsFound(inBottleNamed bottleName: String) -> LibraryNotice {
+        LibraryNotice(
+            title: "Installed, but no program was found",
+            message: "Cellar could not find the installed program in “\(bottleName)”. Use Add Program… in the bottle actions to pick its .exe."
+        )
+    }
+
+    static func noHandler(forDocumentNamed documentName: String) -> LibraryNotice {
+        LibraryNotice(
+            title: "No program can open this file",
+            message: "None of your bottles has a program that opens “\(documentName)”."
+        )
+    }
 }

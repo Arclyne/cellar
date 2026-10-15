@@ -11,6 +11,10 @@ struct BottleProgram: Identifiable, Codable, Hashable {
         self.windowsPath = windowsPath
     }
 
+    var executableFileName: String {
+        WindowsPath.fileName(of: windowsPath)
+    }
+
     func pointsToSameExecutable(as otherProgram: BottleProgram) -> Bool {
         windowsPath.caseInsensitiveCompare(otherProgram.windowsPath) == .orderedSame
     }
