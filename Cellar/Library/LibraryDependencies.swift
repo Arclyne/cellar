@@ -9,7 +9,9 @@ struct LibraryDependencies {
     let recipeInstaller: RecipeInstalling
     let programLauncher: ProgramLaunching
     let processTerminator: BottleProcessTerminating
-    let recipeCatalog: RecipeCataloging
+    let recipes: [InstallationRecipe]
+    let documentHandlerFinder: DocumentHandlerFinding
+    let programIconProvider: ProgramIconProviding
     let fileRevealer: FileRevealing
 }
 
@@ -40,6 +42,7 @@ extension LibraryDependencies {
             installerRunner: installerRunner,
             programResolver: DriveCProgramResolver(layout: layout, fileManager: fileManager)
         )
+        let recipes = BundledRecipeCatalog().loadRecipes()
 
         return LibraryDependencies(
             layout: layout,
@@ -50,7 +53,9 @@ extension LibraryDependencies {
             recipeInstaller: recipeInstaller,
             programLauncher: WineProgramLauncher(invocationFactory: invocationFactory, commandRunner: commandRunner),
             processTerminator: WineserverProcessTerminator(invocationFactory: invocationFactory, commandRunner: commandRunner),
-            recipeCatalog: BundledRecipeCatalog(),
+            recipes: recipes,
+            documentHandlerFinder: RecipeDocumentHandlerFinder(recipes: recipes),
+            programIconProvider: PortableExecutableIconProvider(),
             fileRevealer: WorkspaceFileRevealer()
         )
     }

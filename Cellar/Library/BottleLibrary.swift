@@ -19,6 +19,8 @@ final class BottleLibrary {
     private let recipeInstaller: RecipeInstalling
     private let programLauncher: ProgramLaunching
     private let processTerminator: BottleProcessTerminating
+    private let documentHandlerFinder: DocumentHandlerFinding
+    private let programIconProvider: ProgramIconProviding
     private let fileRevealer: FileRevealing
 
     init(dependencies: LibraryDependencies) {
@@ -30,8 +32,10 @@ final class BottleLibrary {
         recipeInstaller = dependencies.recipeInstaller
         programLauncher = dependencies.programLauncher
         processTerminator = dependencies.processTerminator
+        documentHandlerFinder = dependencies.documentHandlerFinder
+        programIconProvider = dependencies.programIconProvider
         fileRevealer = dependencies.fileRevealer
-        recipes = dependencies.recipeCatalog.loadRecipes()
+        recipes = dependencies.recipes
     }
 
     var selectedBottle: Bottle? {
@@ -76,7 +80,9 @@ final class BottleLibrary {
                 }
             }
             installedBottleID = report.bottle.id
-            if !report.failedComponents.isEmpty {
+            if report.bottle.programs.isEmpty {
+                self.presentedNotice = .noProgramsFound(inBottleNamed: report.bottle.name)
+            } else if !report.failedComponents.isEmpty {
                 self.presentedNotice = .componentsSkipped(
                     report.failedComponents,
                     logFile: self.layout.logFile(for: report.bottle.id)
@@ -92,12 +98,33 @@ final class BottleLibrary {
         }
     }
 
-    func launch(_ program: BottleProgram, in bottle: Bottle) {
+    func launch(_ program: BottleProgram, in bottle: Bottle, opening documentURL: URL? = nil) {
         do {
-            try programLauncher.launch(program, in: bottle, opening: nil)
+            try programLauncher.launch(program, in: bottle, opening: documentURL)
         } catch {
             presentedNotice = .failure(error)
         }
+    }
+
+    func openDocuments(_ documentURLs: [URL]) {
+        if bottles.isEmpty {
+            refresh()
+        }
+        for documentURL in documentURLs {
+            guard let documentHandler = documentHandlerFinder.handler(forDocumentAt: documentURL, among: bottles) else {
+                presentedNotice = .noHandler(forDocumentNamed: documentURL.lastPathComponent)
+                continue
+            }
+            selectedBottleID = documentHandler.bottle.id
+            launch(documentHandler.program, in: documentHandler.bottle, opening: documentURL)
+        }
+    }
+
+    func iconData(for program: BottleProgram, in bottle: Bottle) async -> Data? {
+        guard let executableURL = layout.pathConverter(for: bottle.id).unixURL(forWindowsPath: program.windowsPath) else {
+            return nil
+        }
+        return await programIconProvider.iconData(forExecutableAt: executableURL)
     }
 
     func addProgram(at executableURL: URL, to bottle: Bottle) {
