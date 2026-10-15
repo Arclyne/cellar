@@ -16,17 +16,17 @@ Its first goal is running Sparx Systems **Enterprise Architect** on Apple silico
 - macOS 14 or later
 - Xcode 16 or later
 - [Homebrew](https://brew.sh)
-- Wine, built from the CrossOver sources by Gcenx:
+- Wine, from the macOS builds published by [Gcenx](https://github.com/Gcenx/macOS_Wine_builds/releases). The Homebrew casks are no longer available, so install it by hand:
 
   ```sh
-  brew install --cask gcenx/wine/wine-crossover
+  cd ~/Downloads
+  curl -LO https://github.com/Gcenx/macOS_Wine_builds/releases/download/11.16/wine-devel-11.16-osx64.tar.xz
+  tar -xf wine-devel-11.16-osx64.tar.xz
+  mv "Wine Devel.app" /Applications/
+  xattr -drs com.apple.quarantine "/Applications/Wine Devel.app"
   ```
 
-  If macOS refuses to open it, clear the quarantine flag:
-
-  ```sh
-  xattr -drs com.apple.quarantine "/Applications/Wine Crossover.app"
-  ```
+  Cellar also finds `Wine Stable.app`, `Wine Staging.app` and `Wine Crossover.app` in `/Applications`, and `wine` in `/opt/homebrew/bin` or `/usr/local/bin`.
 
 - Winetricks and cabextract, used by recipes to install Windows components:
 
