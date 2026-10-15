@@ -26,6 +26,7 @@ final class BottleLibrary {
     private let documentHandlerFinder: DocumentHandlerFinding
     private let programIconProvider: ProgramIconProviding
     private let programWindowLocator: ProgramWindowLocating
+    private let appShortcutCreator: AppShortcutCreating
     private let fileRevealer: FileRevealing
     private var launchedProcessIdentifiers: [BottleProgram.ID: Int32] = [:]
 
@@ -41,6 +42,7 @@ final class BottleLibrary {
         documentHandlerFinder = dependencies.documentHandlerFinder
         programIconProvider = dependencies.programIconProvider
         programWindowLocator = dependencies.programWindowLocator
+        appShortcutCreator = dependencies.appShortcutCreator
         fileRevealer = dependencies.fileRevealer
         recipes = dependencies.recipes
     }
@@ -130,6 +132,30 @@ final class BottleLibrary {
         programActivities[program.id]
     }
 
+    func handleOpenedURLs(_ openedURLs: [URL]) {
+        for launchLink in openedURLs.compactMap(ProgramLaunchLink.init(url:)) {
+            launchProgram(linkedBy: launchLink)
+        }
+        let documentURLs = openedURLs.filter(\.isFileURL)
+        if !documentURLs.isEmpty {
+            openDocuments(documentURLs)
+        }
+    }
+
+    func createAppShortcut(named shortcutName: String, for program: BottleProgram, in bottle: Bottle) async {
+        let programIcon = await iconData(for: program, in: bottle)
+        do {
+            let shortcutURL = try appShortcutCreator.createShortcut(
+                named: shortcutName,
+                launching: ProgramLaunchLink(bottleID: bottle.id, programID: program.id),
+                iconData: programIcon
+            )
+            fileRevealer.revealInFinder(shortcutURL)
+        } catch {
+            presentedNotice = .failure(error)
+        }
+    }
+
     func openDocuments(_ documentURLs: [URL]) {
         if bottles.isEmpty {
             refresh()
@@ -208,6 +234,21 @@ final class BottleLibrary {
             presentedNotice = .failure(error)
         }
         activityMessage = nil
+    }
+
+    private func launchProgram(linkedBy launchLink: ProgramLaunchLink) {
+        if bottles.isEmpty {
+            refresh()
+        }
+        guard
+            let linkedBottle = bottles.first(where: { $0.id == launchLink.bottleID }),
+            let linkedProgram = linkedBottle.programs.first(where: { $0.id == launchLink.programID })
+        else {
+            presentedNotice = .shortcutTargetMissing
+            return
+        }
+        selectedBottleID = linkedBottle.id
+        launch(linkedProgram, in: linkedBottle)
     }
 
     private func watchForFirstWindow(of program: BottleProgram, processIdentifier: Int32) {

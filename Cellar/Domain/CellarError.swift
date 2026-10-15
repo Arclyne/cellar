@@ -7,11 +7,12 @@ enum CellarError: LocalizedError {
     case bottleNameMissing
     case bottleNotFound
     case installerTypeNotSupported(String)
+    case shortcutCouldNotBeCreated
 
     var errorDescription: String? {
         switch self {
         case .wineRuntimeNotFound:
-            "Wine was not found. Install it with Homebrew: brew install --cask gcenx/wine/wine-crossover"
+            "Wine was not found. Download Wine Devel from github.com/Gcenx/macOS_Wine_builds and move “Wine Devel.app” to Applications."
         case .winetricksNotFound:
             "Winetricks was not found. Install it with Homebrew: brew install winetricks cabextract"
         case .commandFailed(let commandName, let exitCode, let logFile):
@@ -22,6 +23,8 @@ enum CellarError: LocalizedError {
             "The bottle no longer exists."
         case .installerTypeNotSupported(let fileExtension):
             "Installers of type “.\(fileExtension)” are not supported. Use an .msi or .exe file."
+        case .shortcutCouldNotBeCreated:
+            "Cellar could not write the shortcut to /Applications or ~/Applications."
         }
     }
 
