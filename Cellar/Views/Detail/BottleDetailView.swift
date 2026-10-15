@@ -20,6 +20,7 @@ struct BottleDetailView: View {
     @Environment(BottleLibrary.self) private var library
     @State private var isSelectingFile = false
     @State private var fileSelectionPurpose = FileSelectionPurpose.installer
+    @State private var programPendingShortcut: BottleProgram?
 
     private let programGridColumns = [GridItem(.adaptive(minimum: 120, maximum: 160), spacing: 16)]
 
@@ -48,6 +49,10 @@ struct BottleDetailView: View {
         ) { selection in
             handleFileSelection(selection)
         }
+        .sheet(item: $programPendingShortcut) { program in
+            AppShortcutSheet(program: program, bottle: bottle)
+                .environment(library)
+        }
         .fileDialogDefaultDirectory(fileSelectionPurpose == .program ? library.driveCDirectory(of: bottle) : nil)
     }
 
@@ -61,6 +66,9 @@ struct BottleDetailView: View {
                     .contextMenu {
                         Button("Open") {
                             library.launch(program, in: bottle)
+                        }
+                        Button("Create App Shortcut…") {
+                            programPendingShortcut = program
                         }
                         Divider()
                         Button("Remove from Bottle", role: .destructive) {

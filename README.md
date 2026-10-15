@@ -13,6 +13,7 @@ Its first goal is running Sparx Systems **Enterprise Architect** on Apple silico
 - Show each program with the icon embedded in its `.exe`.
 - Open Enterprise Architect projects (`.qea`, `.qeax`, `.feap`) from Finder with a double click.
 - Find installed programs even when the installer picks a different folder, such as `EA Trial`.
+- Create app shortcuts: right-click a program and choose **Create App Shortcut…** to add an app with the program's icon to `/Applications` (or `~/Applications`). Opening it launches the program through Cellar.
 
 ## Portable apps
 

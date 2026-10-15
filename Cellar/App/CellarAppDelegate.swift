@@ -2,23 +2,23 @@ import AppKit
 
 @MainActor
 final class CellarAppDelegate: NSObject, NSApplicationDelegate {
-    private var documentURLsAwaitingOpener: [URL] = []
-    private var documentOpener: (([URL]) -> Void)?
+    private var urlsAwaitingHandler: [URL] = []
+    private var urlHandler: (([URL]) -> Void)?
 
     func application(_ application: NSApplication, open urls: [URL]) {
-        guard let documentOpener else {
-            documentURLsAwaitingOpener.append(contentsOf: urls)
+        guard let urlHandler else {
+            urlsAwaitingHandler.append(contentsOf: urls)
             return
         }
-        documentOpener(urls)
+        urlHandler(urls)
     }
 
-    func connectDocumentOpener(_ opener: @escaping ([URL]) -> Void) {
-        documentOpener = opener
-        let queuedDocumentURLs = documentURLsAwaitingOpener
-        documentURLsAwaitingOpener.removeAll()
-        if !queuedDocumentURLs.isEmpty {
-            opener(queuedDocumentURLs)
+    func connectURLHandler(_ handler: @escaping ([URL]) -> Void) {
+        urlHandler = handler
+        let queuedURLs = urlsAwaitingHandler
+        urlsAwaitingHandler.removeAll()
+        if !queuedURLs.isEmpty {
+            handler(queuedURLs)
         }
     }
 }
