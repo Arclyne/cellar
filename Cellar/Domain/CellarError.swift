@@ -1,0 +1,36 @@
+import Foundation
+
+enum CellarError: LocalizedError {
+    case wineRuntimeNotFound
+    case winetricksNotFound
+    case commandFailed(commandName: String, exitCode: Int32, logFile: URL?)
+    case bottleNameMissing
+    case bottleNotFound
+    case installerTypeNotSupported(String)
+    case shortcutCouldNotBeCreated
+
+    var errorDescription: String? {
+        switch self {
+        case .wineRuntimeNotFound:
+            "Wine was not found. Download Wine Devel from github.com/Gcenx/macOS_Wine_builds and move “Wine Devel.app” to Applications."
+        case .winetricksNotFound:
+            "Winetricks was not found. Install it with Homebrew: brew install winetricks cabextract"
+        case .commandFailed(let commandName, let exitCode, let logFile):
+            failureDescription(commandName: commandName, exitCode: exitCode, logFile: logFile)
+        case .bottleNameMissing:
+            "Give the bottle a name."
+        case .bottleNotFound:
+            "The bottle no longer exists."
+        case .installerTypeNotSupported(let fileExtension):
+            "Installers of type “.\(fileExtension)” are not supported. Use an .msi or .exe file."
+        case .shortcutCouldNotBeCreated:
+            "Cellar could not write the shortcut to /Applications or ~/Applications."
+        }
+    }
+
+    private func failureDescription(commandName: String, exitCode: Int32, logFile: URL?) -> String {
+        let summary = "\(commandName) finished with exit code \(exitCode)."
+        guard let logFile else { return summary }
+        return "\(summary) Details are in \(logFile.path)."
+    }
+}

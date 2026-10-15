@@ -10,23 +10,31 @@ Its first goal is running Sparx Systems **Enterprise Architect** on Apple silico
 - Install software with **recipes**: JSON files that declare the Windows version, the components to install with Winetricks, the DLL overrides, and where the installed programs live.
 - Launch installed programs with a double click.
 - Run any `.msi` or `.exe` installer in an existing bottle, add programs by hand, open the `C:` drive in Finder and read each bottle's log.
+- Show each program with the icon embedded in its `.exe`.
+- Open Enterprise Architect projects (`.qea`, `.qeax`, `.feap`) from Finder with a double click.
+- Find installed programs even when the installer picks a different folder, such as `EA Trial`.
+- Create app shortcuts: right-click a program and choose **Create App Shortcut…** to add an app with the program's icon to `/Applications` (or `~/Applications`). Opening it launches the program through Cellar.
+
+## Portable apps
+
+Programs that ship as a folder with a ready-to-run `.exe` need no installer. Create an empty bottle, copy the folder into its `C:` drive with **Open C: Drive**, and register the `.exe` with **Add Program…**.
 
 ## Requirements
 
 - macOS 14 or later
 - Xcode 16 or later
 - [Homebrew](https://brew.sh)
-- Wine, built from the CrossOver sources by Gcenx:
+- Wine, from the macOS builds published by [Gcenx](https://github.com/Gcenx/macOS_Wine_builds/releases). The Homebrew casks are no longer available, so install it by hand:
 
   ```sh
-  brew install --cask gcenx/wine/wine-crossover
+  cd ~/Downloads
+  curl -LO https://github.com/Gcenx/macOS_Wine_builds/releases/download/11.16/wine-devel-11.16-osx64.tar.xz
+  tar -xf wine-devel-11.16-osx64.tar.xz
+  mv "Wine Devel.app" /Applications/
+  xattr -drs com.apple.quarantine "/Applications/Wine Devel.app"
   ```
 
-  If macOS refuses to open it, clear the quarantine flag:
-
-  ```sh
-  xattr -drs com.apple.quarantine "/Applications/Wine Crossover.app"
-  ```
+  Cellar also finds `Wine Stable.app`, `Wine Staging.app` and `Wine Crossover.app` in `/Applications`, and `wine` in `/opt/homebrew/bin` or `/usr/local/bin`.
 
 - Winetricks and cabextract, used by recipes to install Windows components:
 
@@ -87,7 +95,8 @@ Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
 | `Storage` | Bottle persistence, directory layout and Windows ↔ macOS path conversion |
 | `Process` | Running external commands and writing their output to the bottle log |
 | `Wine` | Locating Wine and Winetricks, preparing prefixes, installers, launching programs |
-| `Recipes` | Loading recipes and running a full installation |
+| `Recipes` | Loading recipes, running a full installation and finding the program that opens a document |
+| `Icons` | Reading icons from Windows executables |
 | `Library` | `BottleLibrary`, the observable state behind the UI, and its dependency wiring |
 | `Views` | SwiftUI screens |
 
