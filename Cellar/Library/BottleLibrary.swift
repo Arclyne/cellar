@@ -4,11 +4,15 @@ import Observation
 @Observable
 @MainActor
 final class BottleLibrary {
+    private static let windowWatchInterval: Duration = .milliseconds(500)
+    private static let windowWatchAttempts = 90
+
     private(set) var bottles: [Bottle] = []
     var selectedBottleID: Bottle.ID?
     private(set) var activityMessage: String?
     private(set) var presentedNotice: LibraryNotice?
     private(set) var isWineRuntimeAvailable = false
+    private(set) var programActivities: [BottleProgram.ID: ProgramActivity] = [:]
     let recipes: [InstallationRecipe]
 
     private let layout: BottleDirectoryLayout
@@ -21,7 +25,9 @@ final class BottleLibrary {
     private let processTerminator: BottleProcessTerminating
     private let documentHandlerFinder: DocumentHandlerFinding
     private let programIconProvider: ProgramIconProviding
+    private let programWindowLocator: ProgramWindowLocating
     private let fileRevealer: FileRevealing
+    private var launchedProcessIdentifiers: [BottleProgram.ID: Int32] = [:]
 
     init(dependencies: LibraryDependencies) {
         layout = dependencies.layout
@@ -34,6 +40,7 @@ final class BottleLibrary {
         processTerminator = dependencies.processTerminator
         documentHandlerFinder = dependencies.documentHandlerFinder
         programIconProvider = dependencies.programIconProvider
+        programWindowLocator = dependencies.programWindowLocator
         fileRevealer = dependencies.fileRevealer
         recipes = dependencies.recipes
     }
@@ -99,11 +106,28 @@ final class BottleLibrary {
     }
 
     func launch(_ program: BottleProgram, in bottle: Bottle, opening documentURL: URL? = nil) {
+        if documentURL == nil, let currentActivity = programActivities[program.id] {
+            if currentActivity == .running, let processIdentifier = launchedProcessIdentifiers[program.id] {
+                programWindowLocator.bringToFront(processIdentifier: processIdentifier)
+            }
+            return
+        }
         do {
-            try programLauncher.launch(program, in: bottle, opening: documentURL)
+            let processIdentifier = try programLauncher.launch(program, in: bottle, opening: documentURL) { processExit in
+                Task { @MainActor in
+                    self.programDidExit(program, in: bottle, with: processExit)
+                }
+            }
+            launchedProcessIdentifiers[program.id] = processIdentifier
+            programActivities[program.id] = .opening
+            watchForFirstWindow(of: program, processIdentifier: processIdentifier)
         } catch {
             presentedNotice = .failure(error)
         }
+    }
+
+    func activity(of program: BottleProgram) -> ProgramActivity? {
+        programActivities[program.id]
     }
 
     func openDocuments(_ documentURLs: [URL]) {
@@ -141,12 +165,14 @@ final class BottleLibrary {
     }
 
     func stopAllPrograms(in bottle: Bottle) async {
+        forgetLaunchedPrograms(of: bottle)
         await performActivity("Stopping programs in \(bottle.name)…") {
             try await self.processTerminator.terminateAllProcesses(in: bottle)
         }
     }
 
     func deleteBottle(_ bottle: Bottle) async {
+        forgetLaunchedPrograms(of: bottle)
         await performActivity("Moving \(bottle.name) to the Trash…") {
             try? await self.processTerminator.terminateAllProcesses(in: bottle)
             try self.bottleStore.remove(bottle)
@@ -182,6 +208,38 @@ final class BottleLibrary {
             presentedNotice = .failure(error)
         }
         activityMessage = nil
+    }
+
+    private func watchForFirstWindow(of program: BottleProgram, processIdentifier: Int32) {
+        Task { @MainActor in
+            for _ in 0..<Self.windowWatchAttempts {
+                try? await Task.sleep(for: Self.windowWatchInterval)
+                guard self.launchedProcessIdentifiers[program.id] == processIdentifier else { return }
+                if self.programWindowLocator.hasOnscreenWindow(ownedBy: processIdentifier) { break }
+            }
+            guard self.launchedProcessIdentifiers[program.id] == processIdentifier else { return }
+            self.programActivities[program.id] = .running
+        }
+    }
+
+    private func programDidExit(_ program: BottleProgram, in bottle: Bottle, with processExit: ProcessExit) {
+        guard launchedProcessIdentifiers[program.id] == processExit.processIdentifier else { return }
+        launchedProcessIdentifiers[program.id] = nil
+        programActivities[program.id] = nil
+        if processExit.exitCode != 0 {
+            presentedNotice = .programClosedUnexpectedly(
+                program.displayName,
+                exitCode: processExit.exitCode,
+                logFile: layout.logFile(for: bottle.id)
+            )
+        }
+    }
+
+    private func forgetLaunchedPrograms(of bottle: Bottle) {
+        for program in bottle.programs {
+            launchedProcessIdentifiers[program.id] = nil
+            programActivities[program.id] = nil
+        }
     }
 
     private func updateActivityMessage(_ message: String) {

@@ -23,6 +23,14 @@ struct LibraryNotice: Identifiable, Equatable {
         )
     }
 
+    static func programClosedUnexpectedly(_ programName: String, exitCode: Int32, logFile: URL) -> LibraryNotice {
+        let windowsExitCode = String(format: "0x%08X", UInt32(bitPattern: exitCode))
+        return LibraryNotice(
+            title: "\(programName) closed unexpectedly",
+            message: "It stopped with exit code \(windowsExitCode). Details are in \(logFile.path)."
+        )
+    }
+
     static func noHandler(forDocumentNamed documentName: String) -> LibraryNotice {
         LibraryNotice(
             title: "No program can open this file",

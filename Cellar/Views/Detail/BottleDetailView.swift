@@ -162,13 +162,34 @@ struct ProgramTile: View {
     @State private var programIcon: NSImage?
 
     var body: some View {
-        VStack(spacing: 8) {
+        let programActivity = library.activity(of: program)
+        VStack(spacing: 6) {
             iconView
                 .frame(width: 64, height: 64)
+                .opacity(programActivity == .opening ? 0.45 : 1)
+                .overlay {
+                    if programActivity == .opening {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                }
+                .overlay(alignment: .bottomTrailing) {
+                    if programActivity == .running {
+                        Circle()
+                            .fill(.green)
+                            .frame(width: 12, height: 12)
+                            .overlay(Circle().stroke(Color(nsColor: .windowBackgroundColor), lineWidth: 2))
+                            .offset(x: 3, y: 3)
+                    }
+                }
             Text(program.displayName)
                 .font(.callout)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
+            Text(statusDescription(for: programActivity))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .opacity(programActivity == nil ? 0 : 1)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
@@ -177,6 +198,14 @@ struct ProgramTile: View {
         .task(id: program.windowsPath) {
             guard let iconData = await library.iconData(for: program, in: bottle) else { return }
             programIcon = NSImage(data: iconData)
+        }
+    }
+
+    private func statusDescription(for programActivity: ProgramActivity?) -> String {
+        switch programActivity {
+        case .opening?: "Opening…"
+        case .running?: "Running"
+        case nil: " "
         }
     }
 
