@@ -16,7 +16,7 @@ struct LibraryStatusBar: View {
 }
 
 struct WineRuntimeMissingBanner: View {
-    private static let installationCommand = "brew install --cask gcenx/wine/wine-crossover"
+    private static let installationHint = "Download Wine Devel from github.com/Gcenx/macOS_Wine_builds and move it to Applications."
 
     @Environment(BottleLibrary.self) private var library
 
@@ -27,8 +27,8 @@ struct WineRuntimeMissingBanner: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text("Wine is not installed")
                     .font(.headline)
-                Text(Self.installationCommand)
-                    .font(.caption.monospaced())
+                Text(Self.installationHint)
+                    .font(.caption)
                     .foregroundStyle(.secondary)
                     .textSelection(.enabled)
             }
