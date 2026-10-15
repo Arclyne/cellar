@@ -7,6 +7,7 @@ enum CellarError: LocalizedError {
     case bottleNameMissing
     case bottleNotFound
     case installerTypeNotSupported(String)
+    case shortcutCouldNotBeCreated
 
     var errorDescription: String? {
         switch self {
@@ -22,6 +23,8 @@ enum CellarError: LocalizedError {
             "The bottle no longer exists."
         case .installerTypeNotSupported(let fileExtension):
             "Installers of type “.\(fileExtension)” are not supported. Use an .msi or .exe file."
+        case .shortcutCouldNotBeCreated:
+            "Cellar could not write the shortcut to /Applications or ~/Applications."
         }
     }
 

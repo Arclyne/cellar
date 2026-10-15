@@ -11,8 +11,8 @@ struct CellarApp: App {
                 .environment(library)
                 .frame(minWidth: 820, minHeight: 520)
                 .onAppear {
-                    appDelegate.connectDocumentOpener { documentURLs in
-                        library.openDocuments(documentURLs)
+                    appDelegate.connectURLHandler { openedURLs in
+                        library.handleOpenedURLs(openedURLs)
                     }
                 }
         }

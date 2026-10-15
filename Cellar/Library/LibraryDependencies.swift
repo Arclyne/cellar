@@ -13,6 +13,7 @@ struct LibraryDependencies {
     let documentHandlerFinder: DocumentHandlerFinding
     let programIconProvider: ProgramIconProviding
     let programWindowLocator: ProgramWindowLocating
+    let appShortcutCreator: AppShortcutCreating
     let fileRevealer: FileRevealing
 }
 
@@ -58,6 +59,7 @@ extension LibraryDependencies {
             documentHandlerFinder: RecipeDocumentHandlerFinder(recipes: recipes),
             programIconProvider: PortableExecutableIconProvider(),
             programWindowLocator: WindowServerProgramWindowLocator(),
+            appShortcutCreator: ApplicationsFolderShortcutCreator(fileManager: fileManager),
             fileRevealer: WorkspaceFileRevealer()
         )
     }

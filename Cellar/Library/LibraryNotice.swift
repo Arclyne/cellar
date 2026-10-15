@@ -31,6 +31,11 @@ struct LibraryNotice: Identifiable, Equatable {
         )
     }
 
+    static let shortcutTargetMissing = LibraryNotice(
+        title: "This shortcut no longer works",
+        message: "The program it opens was removed from Cellar. Create the shortcut again from the program in its bottle."
+    )
+
     static func noHandler(forDocumentNamed documentName: String) -> LibraryNotice {
         LibraryNotice(
             title: "No program can open this file",
