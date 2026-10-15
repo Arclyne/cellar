@@ -11,7 +11,7 @@ enum CellarError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .wineRuntimeNotFound:
-            "Wine was not found. Install it with Homebrew: brew install --cask gcenx/wine/wine-crossover"
+            "Wine was not found. Download Wine Devel from github.com/Gcenx/macOS_Wine_builds and move “Wine Devel.app” to Applications."
         case .winetricksNotFound:
             "Winetricks was not found. Install it with Homebrew: brew install winetricks cabextract"
         case .commandFailed(let commandName, let exitCode, let logFile):
