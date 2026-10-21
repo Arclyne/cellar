@@ -11,7 +11,7 @@ Its first goal is running Sparx Systems **Enterprise Architect** on Apple silico
 - Launch installed programs with a double click.
 - Run any `.msi` or `.exe` installer in an existing bottle, add programs by hand, open the `C:` drive in Finder and read each bottle's log.
 - Show each program with the icon embedded in its `.exe`.
-- Open Enterprise Architect projects from Finder with a double click: `.qea` and `.qeax` open in Enterprise Architect 17, `.eap` and `.eapx` in Enterprise Architect 15. When more than one bottle can open a project, such as a `.feap` with both versions installed, Cellar asks which one to use.
+- Open Enterprise Architect projects from Finder with a double click: `.qea` and `.qeax` open in Enterprise Architect 17, and `.feap` in either version. When more than one bottle can open a project, such as a `.feap` with both versions installed, Cellar asks which one to use.
 - Find installed programs even when the installer picks a different folder, such as `EA Trial`.
 - Create app shortcuts: right-click a program and choose **Create App Shortcut…** to add an app with the program's icon to `/Applications` (or `~/Applications`). Opening it launches the program through Cellar.
 
@@ -58,10 +58,12 @@ Open `Cellar.xcodeproj` in Xcode and run the **Cellar** scheme. The app is signe
 
 Cellar has a recipe for each supported version. Install each version in its own bottle; a bottle remembers its recipe, so each version only opens its own projects.
 
+Enterprise Architect 15 cannot open `.eap` or `.eapx` projects in Cellar: they need the Jet 4.0 database engine, which only installs in 32-bit Wine prefixes, and Wine on macOS only creates 64-bit ones. Convert them to `.feap` with **Project Transfer** in Enterprise Architect on Windows first.
+
 | Recipe | Installer | Components |
 | --- | --- | --- |
 | **Enterprise Architect 17** (64-bit) | `easetup_x64.msi` or `easetupfull_x64.msi` | MSXML 3, MSXML 4 |
-| **Enterprise Architect 15** (32-bit) | `easetup.msi` or `easetupfull.msi` | MSXML 3, MSXML 4, MDAC 2.8, Jet 4.0 (for `.eap`) |
+| **Enterprise Architect 15** (32-bit) | `easetup.msi` or `easetupfull.msi` | MSXML 3, MSXML 4 |
 
 1. Download the installer for your version from Sparx Systems.
 2. In Cellar, choose **Install Software**, pick the recipe, choose the installer and click **Install**.
@@ -86,13 +88,13 @@ Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
   "displayName": "Enterprise Architect",
   "summary": "Sparx Systems modeling tool.",
   "windowsVersion": "win10",
-  "winetricksVerbs": ["msxml3", "msxml4", "mdac28", "jet40"],
+  "winetricksVerbs": ["msxml3", "msxml4"],
   "dllOverrides": { "*msado15": "native,builtin" },
   "installerFileExtensions": ["msi", "exe"],
   "programCandidates": [
     { "displayName": "Enterprise Architect", "windowsPath": "C:\\Program Files\\Sparx Systems\\EA\\EA.exe" }
   ],
-  "documentFileExtensions": ["qea", "qeax", "eap", "eapx", "feap"]
+  "documentFileExtensions": ["qea", "qeax", "feap"]
 }
 ```
 
