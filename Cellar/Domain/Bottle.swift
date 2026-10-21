@@ -5,7 +5,7 @@ struct Bottle: Identifiable, Codable, Hashable {
     var name: String
     var windowsVersion: WindowsVersion
     var programs: [BottleProgram]
-    let recipeID: InstallationRecipe.ID?
+    var recipeID: InstallationRecipe.ID?
     let createdAt: Date
 
     init(

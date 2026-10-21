@@ -102,6 +102,23 @@ final class BottleLibrary {
         reloadBottles(selecting: installedBottleID)
     }
 
+    func applyComponents(of recipe: InstallationRecipe, to bottle: Bottle) async {
+        await performActivity("Preparing \(bottle.name)…") {
+            let report = try await self.recipeInstaller.applyComponents(of: recipe, to: bottle) { stage in
+                Task { @MainActor in
+                    self.updateActivityMessage(stage.statusMessage)
+                }
+            }
+            if !report.failedComponents.isEmpty {
+                self.presentedNotice = .componentsSkipped(
+                    report.failedComponents,
+                    logFile: self.layout.logFile(for: report.bottle.id)
+                )
+            }
+        }
+        reloadBottles(selecting: bottle.id)
+    }
+
     func runInstaller(at installerURL: URL, in bottle: Bottle) async {
         await performActivity("Running \(installerURL.lastPathComponent)…") {
             try await self.installerRunner.runInstaller(at: installerURL, in: bottle)

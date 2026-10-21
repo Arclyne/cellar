@@ -19,6 +19,8 @@ Its first goal is running Sparx Systems **Enterprise Architect** on Apple silico
 
 Programs that ship as a folder with a ready-to-run `.exe` need no installer. Create an empty bottle, copy the folder into its `C:` drive with **Open C: Drive**, and register the `.exe` with **Add Program…**.
 
+When the program needs a recipe's Windows components, such as a portable Enterprise Architect, choose **Install Recipe Components…** in the bottle actions and pick the recipe. Cellar installs its components and library overrides without running an installer, registers the program if it sits where the recipe expects it, and opens that recipe's documents with it.
+
 ## Requirements
 
 - macOS 14 or later
