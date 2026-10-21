@@ -13,7 +13,6 @@ final class BottleLibrary {
     private(set) var presentedNotice: LibraryNotice?
     private(set) var isWineRuntimeAvailable = false
     private(set) var programActivities: [BottleProgram.ID: ProgramActivity] = [:]
-    private(set) var pendingDocumentChoices: [DocumentHandlerChoice] = []
     let recipes: [InstallationRecipe]
 
     private let layout: BottleDirectoryLayout
@@ -179,22 +178,12 @@ final class BottleLibrary {
             refresh()
         }
         for documentURL in documentURLs {
-            let documentHandlers = documentHandlerFinder.handlers(forDocumentAt: documentURL, among: bottles)
-            switch documentHandlers.count {
-            case 0:
+            guard let documentHandler = documentHandlerFinder.handler(forDocumentAt: documentURL, among: bottles) else {
                 presentedNotice = .noHandler(forDocumentNamed: documentURL.lastPathComponent)
-            case 1:
-                open(documentURL, with: documentHandlers[0])
-            default:
-                pendingDocumentChoices.append(DocumentHandlerChoice(documentURL: documentURL, handlers: documentHandlers))
+                continue
             }
-        }
-    }
-
-    func resolve(_ choice: DocumentHandlerChoice, with documentHandler: DocumentHandler?) {
-        pendingDocumentChoices.removeAll { $0.id == choice.id }
-        if let documentHandler {
-            open(choice.documentURL, with: documentHandler)
+            selectedBottleID = documentHandler.bottle.id
+            launch(documentHandler.program, in: documentHandler.bottle, opening: documentURL)
         }
     }
 
@@ -262,11 +251,6 @@ final class BottleLibrary {
             presentedNotice = .failure(error)
         }
         activityMessage = nil
-    }
-
-    private func open(_ documentURL: URL, with documentHandler: DocumentHandler) {
-        selectedBottleID = documentHandler.bottle.id
-        launch(documentHandler.program, in: documentHandler.bottle, opening: documentURL)
     }
 
     private func launchProgram(linkedBy launchLink: ProgramLaunchLink) {

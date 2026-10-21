@@ -14,14 +14,6 @@ struct InstallationRecipe: Identifiable, Codable, Hashable {
     func opensDocuments(withExtension fileExtension: String) -> Bool {
         documentFileExtensions.contains { $0.caseInsensitiveCompare(fileExtension) == .orderedSame }
     }
-
-    func declaresProgram(at windowsPath: String) -> Bool {
-        programCandidates.contains { $0.windowsPath.caseInsensitiveCompare(windowsPath) == .orderedSame }
-    }
-
-    func declaresExecutable(named executableFileName: String) -> Bool {
-        programCandidates.contains { $0.executableFileName.caseInsensitiveCompare(executableFileName) == .orderedSame }
-    }
 }
 
 struct ProgramCandidate: Codable, Hashable {

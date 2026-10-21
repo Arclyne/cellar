@@ -11,7 +11,7 @@ Its first goal is running Sparx Systems **Enterprise Architect** on Apple silico
 - Launch installed programs with a double click.
 - Run any `.msi` or `.exe` installer in an existing bottle, add programs by hand, open the `C:` drive in Finder and read each bottle's log.
 - Show each program with the icon embedded in its `.exe`.
-- Open Enterprise Architect projects from Finder with a double click: `.qea` and `.qeax` open in Enterprise Architect 17, and `.feap` in either version. When more than one bottle can open a project, such as a `.feap` with both versions installed, Cellar asks which one to use.
+- Open Enterprise Architect projects (`.qea`, `.qeax`, `.feap`) from Finder with a double click.
 - Find installed programs even when the installer picks a different folder, such as `EA Trial`.
 - Create app shortcuts: right-click a program and choose **Create App Shortcut…** to add an app with the program's icon to `/Applications` (or `~/Applications`). Opening it launches the program through Cellar.
 
@@ -19,7 +19,7 @@ Its first goal is running Sparx Systems **Enterprise Architect** on Apple silico
 
 Programs that ship as a folder with a ready-to-run `.exe` need no installer. Create an empty bottle, copy the folder into its `C:` drive with **Open C: Drive**, and register the `.exe` with **Add Program…**.
 
-When the program needs a recipe's Windows components, such as a portable Enterprise Architect, choose **Install Recipe Components…** in the bottle actions and pick the recipe. Cellar installs its components and library overrides without running an installer, registers the program if it sits where the recipe expects it, and opens that recipe's documents with it.
+When the program needs a recipe's Windows components, such as a portable Enterprise Architect, choose **Install Recipe Components…** in the bottle actions and pick the recipe. Cellar installs its components and library overrides without running an installer, and registers the program if it sits where the recipe expects it.
 
 ## Requirements
 
@@ -56,20 +56,11 @@ Open `Cellar.xcodeproj` in Xcode and run the **Cellar** scheme. The app is signe
 
 ## Installing Enterprise Architect
 
-Cellar has a recipe for each supported version. Install each version in its own bottle; a bottle remembers its recipe, so each version only opens its own projects.
+1. Download the Enterprise Architect installer from Sparx Systems: `easetup.msi` (trial) or `easetupfull.msi` (registered).
+2. In Cellar, choose **Install Software**, pick **Enterprise Architect**, choose the installer and click **Install**.
+3. Cellar creates a Windows 10 bottle, installs MSXML 4 and MSXML 3, sets `*msado15` to `native,builtin`, runs the installer and adds Enterprise Architect to the bottle.
 
-Recipes install MSXML 4 before MSXML 3: once the native MSXML 3 is in place, Wine's installer fails on MSXML 4. The native MSXML 3 also breaks Wine's built-in MSXML 6, so Enterprise Architect 15, which uses MSXML 6 at startup, installs the native MSXML 6 too.
-
-Enterprise Architect 15 cannot open `.eap` or `.eapx` projects in Cellar: they need the Jet 4.0 database engine, which only installs in 32-bit Wine prefixes, and Wine on macOS only creates 64-bit ones. Convert them to `.feap` with **Project Transfer** in Enterprise Architect on Windows first.
-
-| Recipe | Installer | Components |
-| --- | --- | --- |
-| **Enterprise Architect 17** (64-bit) | `easetup_x64.msi` or `easetupfull_x64.msi` | MSXML 4, MSXML 3 |
-| **Enterprise Architect 15** (32-bit) | `easetup.msi` or `easetupfull.msi` | MSXML 4, MSXML 3, MSXML 6 |
-
-1. Download the installer for your version from Sparx Systems.
-2. In Cellar, choose **Install Software**, pick the recipe, choose the installer and click **Install**.
-3. Cellar creates a Windows 10 bottle, installs the recipe's components, sets `*msado15` to `native,builtin`, runs the installer and adds Enterprise Architect to the bottle.
+The recipe installs MSXML 4 before MSXML 3: once the native MSXML 3 is in place, Wine's installer fails on MSXML 4.
 
 ## Where bottles live
 
@@ -96,7 +87,7 @@ Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
   "programCandidates": [
     { "displayName": "Enterprise Architect", "windowsPath": "C:\\Program Files\\Sparx Systems\\EA\\EA.exe" }
   ],
-  "documentFileExtensions": ["qea", "qeax", "feap"]
+  "documentFileExtensions": ["qea", "qeax", "eap", "eapx", "feap"]
 }
 ```
 

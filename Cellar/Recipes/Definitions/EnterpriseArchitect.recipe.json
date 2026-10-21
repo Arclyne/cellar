@@ -1,7 +1,7 @@
 {
   "id": "sparx-enterprise-architect",
-  "displayName": "Enterprise Architect 17",
-  "summary": "Sparx Systems modeling tool, version 17 (64-bit). Installs MSXML 4 and 3 before running the EA installer (easetup_x64.msi or easetupfull_x64.msi).",
+  "displayName": "Enterprise Architect",
+  "summary": "Sparx Systems modeling tool (64-bit). Installs MSXML 4 and 3 before running the EA installer (easetup_x64.msi or easetupfull_x64.msi).",
   "windowsVersion": "win10",
   "winetricksVerbs": [
     "msxml4",
@@ -16,12 +16,20 @@
   ],
   "programCandidates": [
     {
-      "displayName": "Enterprise Architect 17",
+      "displayName": "Enterprise Architect",
       "windowsPath": "C:\\Program Files\\Sparx Systems\\EA\\EA.exe"
     },
     {
-      "displayName": "Enterprise Architect 17",
+      "displayName": "Enterprise Architect",
       "windowsPath": "C:\\Program Files\\Sparx Systems\\EA Trial\\EA.exe"
+    },
+    {
+      "displayName": "Enterprise Architect",
+      "windowsPath": "C:\\Program Files (x86)\\Sparx Systems\\EA\\EA.exe"
+    },
+    {
+      "displayName": "Enterprise Architect",
+      "windowsPath": "C:\\Program Files (x86)\\Sparx Systems\\EA Trial\\EA.exe"
     }
   ],
   "documentFileExtensions": [
