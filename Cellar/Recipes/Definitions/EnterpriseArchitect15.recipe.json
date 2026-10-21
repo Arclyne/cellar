@@ -1,11 +1,12 @@
 {
   "id": "sparx-enterprise-architect-15",
   "displayName": "Enterprise Architect 15",
-  "summary": "Sparx Systems modeling tool, version 15 (32-bit). Installs MSXML 3 and 4 before running the EA installer (easetup.msi or easetupfull.msi). Opens .feap projects; .eap and .eapx need Jet 4.0, which Wine on macOS cannot install.",
+  "summary": "Sparx Systems modeling tool, version 15 (32-bit). Installs MSXML 4, 3 and 6 before running the EA installer (easetup.msi or easetupfull.msi). Opens .feap projects; .eap and .eapx need Jet 4.0, which Wine on macOS cannot install.",
   "windowsVersion": "win10",
   "winetricksVerbs": [
+    "msxml4",
     "msxml3",
-    "msxml4"
+    "msxml6"
   ],
   "dllOverrides": {
     "*msado15": "native,builtin"

@@ -58,12 +58,14 @@ Open `Cellar.xcodeproj` in Xcode and run the **Cellar** scheme. The app is signe
 
 Cellar has a recipe for each supported version. Install each version in its own bottle; a bottle remembers its recipe, so each version only opens its own projects.
 
+Recipes install MSXML 4 before MSXML 3: once the native MSXML 3 is in place, Wine's installer fails on MSXML 4. The native MSXML 3 also breaks Wine's built-in MSXML 6, so Enterprise Architect 15, which uses MSXML 6 at startup, installs the native MSXML 6 too.
+
 Enterprise Architect 15 cannot open `.eap` or `.eapx` projects in Cellar: they need the Jet 4.0 database engine, which only installs in 32-bit Wine prefixes, and Wine on macOS only creates 64-bit ones. Convert them to `.feap` with **Project Transfer** in Enterprise Architect on Windows first.
 
 | Recipe | Installer | Components |
 | --- | --- | --- |
-| **Enterprise Architect 17** (64-bit) | `easetup_x64.msi` or `easetupfull_x64.msi` | MSXML 3, MSXML 4 |
-| **Enterprise Architect 15** (32-bit) | `easetup.msi` or `easetupfull.msi` | MSXML 3, MSXML 4 |
+| **Enterprise Architect 17** (64-bit) | `easetup_x64.msi` or `easetupfull_x64.msi` | MSXML 4, MSXML 3 |
+| **Enterprise Architect 15** (32-bit) | `easetup.msi` or `easetupfull.msi` | MSXML 4, MSXML 3, MSXML 6 |
 
 1. Download the installer for your version from Sparx Systems.
 2. In Cellar, choose **Install Software**, pick the recipe, choose the installer and click **Install**.
@@ -88,7 +90,7 @@ Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
   "displayName": "Enterprise Architect",
   "summary": "Sparx Systems modeling tool.",
   "windowsVersion": "win10",
-  "winetricksVerbs": ["msxml3", "msxml4"],
+  "winetricksVerbs": ["msxml4", "msxml3"],
   "dllOverrides": { "*msado15": "native,builtin" },
   "installerFileExtensions": ["msi", "exe"],
   "programCandidates": [
