@@ -5,6 +5,7 @@ struct Bottle: Identifiable, Codable, Hashable {
     var name: String
     var windowsVersion: WindowsVersion
     var programs: [BottleProgram]
+    let recipeID: InstallationRecipe.ID?
     let createdAt: Date
 
     init(
@@ -12,12 +13,14 @@ struct Bottle: Identifiable, Codable, Hashable {
         name: String,
         windowsVersion: WindowsVersion,
         programs: [BottleProgram] = [],
+        recipeID: InstallationRecipe.ID? = nil,
         createdAt: Date = Date()
     ) {
         self.id = id
         self.name = name
         self.windowsVersion = windowsVersion
         self.programs = programs
+        self.recipeID = recipeID
         self.createdAt = createdAt
     }
 

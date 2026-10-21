@@ -60,6 +60,22 @@ struct ContentView: View {
         } message: { notice in
             Text(notice.message)
         }
+        .confirmationDialog(
+            "Open “\(pendingDocumentChoice?.documentURL.lastPathComponent ?? "")” with",
+            isPresented: isChoosingDocumentHandler,
+            presenting: pendingDocumentChoice
+        ) { choice in
+            ForEach(choice.handlers) { documentHandler in
+                Button("\(documentHandler.program.displayName) in “\(documentHandler.bottle.name)”") {
+                    library.resolve(choice, with: documentHandler)
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                library.resolve(choice, with: nil)
+            }
+        } message: { _ in
+            Text("More than one bottle can open this project.")
+        }
         .task {
             library.refresh()
         }
@@ -73,6 +89,19 @@ struct ContentView: View {
                     library.dismissNotice()
                 }
             }
+        )
+    }
+
+    private var pendingDocumentChoice: DocumentHandlerChoice? {
+        library.pendingDocumentChoices.first
+    }
+
+    private var isChoosingDocumentHandler: Binding<Bool> {
+        Binding(
+            get: { pendingDocumentChoice != nil },
+            // Every way out of the dialog is one of its buttons, which resolves the choice itself.
+            // Resolving here too would dismiss the next queued choice before it is shown.
+            set: { _ in }
         )
     }
 }

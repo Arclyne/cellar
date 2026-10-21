@@ -1,34 +1,44 @@
 import Foundation
 
-struct DocumentHandler {
+struct DocumentHandler: Identifiable {
     let bottle: Bottle
     let program: BottleProgram
+
+    var id: BottleProgram.ID { program.id }
 }
 
 protocol DocumentHandlerFinding {
-    func handler(forDocumentAt documentURL: URL, among bottles: [Bottle]) -> DocumentHandler?
+    func handlers(forDocumentAt documentURL: URL, among bottles: [Bottle]) -> [DocumentHandler]
 }
 
 struct RecipeDocumentHandlerFinder: DocumentHandlerFinding {
     let recipes: [InstallationRecipe]
 
-    func handler(forDocumentAt documentURL: URL, among bottles: [Bottle]) -> DocumentHandler? {
-        let handlingExecutableNames = Set(
-            recipes
-                .filter { $0.opensDocuments(withExtension: documentURL.pathExtension) }
-                .flatMap { $0.programCandidates }
-                .map { $0.executableFileName.lowercased() }
-        )
-        guard !handlingExecutableNames.isEmpty else { return nil }
+    func handlers(forDocumentAt documentURL: URL, among bottles: [Bottle]) -> [DocumentHandler] {
+        let openingRecipes = recipes.filter { $0.opensDocuments(withExtension: documentURL.pathExtension) }
+        guard !openingRecipes.isEmpty else { return [] }
 
-        for bottle in bottles {
+        return bottles.compactMap { bottle in
+            // A bottle installed from a known recipe only opens that recipe's documents, so
+            // Enterprise Architect 15 and 17 bottles never take each other's projects.
+            let candidateRecipes = recipe(for: bottle).map { [$0] } ?? openingRecipes
             let handlingProgram = bottle.programs.first { program in
-                handlingExecutableNames.contains(program.executableFileName.lowercased())
+                candidateRecipes.contains { recipe in
+                    recipe.opensDocuments(withExtension: documentURL.pathExtension)
+                        && recipe.declaresExecutable(named: program.executableFileName)
+                }
             }
-            if let handlingProgram {
-                return DocumentHandler(bottle: bottle, program: handlingProgram)
-            }
+            return handlingProgram.map { DocumentHandler(bottle: bottle, program: $0) }
         }
-        return nil
+    }
+
+    private func recipe(for bottle: Bottle) -> InstallationRecipe? {
+        if let recipeID = bottle.recipeID {
+            return recipes.first { $0.id == recipeID }
+        }
+        // Bottles created before Cellar recorded their recipe are matched by where their programs live.
+        return recipes.first { recipe in
+            bottle.programs.contains { recipe.declaresProgram(at: $0.windowsPath) }
+        }
     }
 }

@@ -25,7 +25,7 @@ struct RecipeInstaller: RecipeInstalling {
         }
 
         onStageChange(.creatingBottle)
-        let newBottle = Bottle(name: request.bottleName, windowsVersion: recipe.windowsVersion)
+        let newBottle = Bottle(name: request.bottleName, windowsVersion: recipe.windowsVersion, recipeID: recipe.id)
         try bottleStore.save(newBottle)
 
         onStageChange(.preparingWindowsEnvironment)

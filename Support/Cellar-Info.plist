@@ -16,6 +16,18 @@
 				<string>com.sparxsystems.enterprise-architect.project</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Enterprise Architect Legacy Project</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.sparxsystems.enterprise-architect.legacy-project</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
@@ -46,6 +58,24 @@
 					<string>qea</string>
 					<string>qeax</string>
 					<string>feap</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeIdentifier</key>
+			<string>com.sparxsystems.enterprise-architect.legacy-project</string>
+			<key>UTTypeDescription</key>
+			<string>Enterprise Architect Legacy Project</string>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+			</array>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>eap</string>
+					<string>eapx</string>
 				</array>
 			</dict>
 		</dict>
