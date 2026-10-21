@@ -1,11 +1,11 @@
 {
   "id": "sparx-enterprise-architect",
   "displayName": "Enterprise Architect",
-  "summary": "Sparx Systems modeling tool (64-bit). Installs MSXML 3 and 4 before running the EA installer (easetup_x64.msi or easetupfull_x64.msi).",
+  "summary": "Sparx Systems modeling tool (64-bit). Installs MSXML 4 and 3 before running the EA installer (easetup_x64.msi or easetupfull_x64.msi).",
   "windowsVersion": "win10",
   "winetricksVerbs": [
-    "msxml3",
-    "msxml4"
+    "msxml4",
+    "msxml3"
   ],
   "dllOverrides": {
     "*msado15": "native,builtin"

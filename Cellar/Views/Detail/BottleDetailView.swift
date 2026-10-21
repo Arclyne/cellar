@@ -21,6 +21,7 @@ struct BottleDetailView: View {
     @State private var isSelectingFile = false
     @State private var fileSelectionPurpose = FileSelectionPurpose.installer
     @State private var programPendingShortcut: BottleProgram?
+    @State private var isPresentingRecipeComponentsSheet = false
 
     private let programGridColumns = [GridItem(.adaptive(minimum: 120, maximum: 160), spacing: 16)]
 
@@ -51,6 +52,10 @@ struct BottleDetailView: View {
         }
         .sheet(item: $programPendingShortcut) { program in
             AppShortcutSheet(program: program, bottle: bottle)
+                .environment(library)
+        }
+        .sheet(isPresented: $isPresentingRecipeComponentsSheet) {
+            RecipeComponentsSheet(bottle: bottle)
                 .environment(library)
         }
         .fileDialogDefaultDirectory(fileSelectionPurpose == .program ? library.driveCDirectory(of: bottle) : nil)
@@ -104,6 +109,10 @@ struct BottleDetailView: View {
             Button("Add Program…") {
                 selectFile(for: .program)
             }
+            Button("Install Recipe Components…") {
+                isPresentingRecipeComponentsSheet = true
+            }
+            .disabled(library.isBusy)
             Divider()
             Button("Open C: Drive") {
                 library.openDriveC(of: bottle)

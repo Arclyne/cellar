@@ -19,6 +19,8 @@ Its first goal is running Sparx Systems **Enterprise Architect** on Apple silico
 
 Programs that ship as a folder with a ready-to-run `.exe` need no installer. Create an empty bottle, copy the folder into its `C:` drive with **Open C: Drive**, and register the `.exe` with **Add Program…**.
 
+When the program needs a recipe's Windows components, such as a portable Enterprise Architect, choose **Install Recipe Components…** in the bottle actions and pick the recipe. Cellar installs its components and library overrides without running an installer, and registers the program if it sits where the recipe expects it.
+
 ## Requirements
 
 - macOS 14 or later
@@ -56,7 +58,9 @@ Open `Cellar.xcodeproj` in Xcode and run the **Cellar** scheme. The app is signe
 
 1. Download the Enterprise Architect installer from Sparx Systems: `easetup.msi` (trial) or `easetupfull.msi` (registered).
 2. In Cellar, choose **Install Software**, pick **Enterprise Architect**, choose the installer and click **Install**.
-3. Cellar creates a Windows 10 bottle, installs MSXML 3, MSXML 4, MDAC 2.8 and Jet 4.0, sets `*msado15` to `native,builtin`, runs the installer and adds Enterprise Architect to the bottle.
+3. Cellar creates a Windows 10 bottle, installs MSXML 4 and MSXML 3, sets `*msado15` to `native,builtin`, runs the installer and adds Enterprise Architect to the bottle.
+
+The recipe installs MSXML 4 before MSXML 3: once the native MSXML 3 is in place, Wine's installer fails on MSXML 4.
 
 ## Where bottles live
 
@@ -77,7 +81,7 @@ Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
   "displayName": "Enterprise Architect",
   "summary": "Sparx Systems modeling tool.",
   "windowsVersion": "win10",
-  "winetricksVerbs": ["msxml3", "msxml4", "mdac28", "jet40"],
+  "winetricksVerbs": ["msxml4", "msxml3"],
   "dllOverrides": { "*msado15": "native,builtin" },
   "installerFileExtensions": ["msi", "exe"],
   "programCandidates": [
