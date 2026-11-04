@@ -73,7 +73,17 @@ The recipe installs MSXML 4 before MSXML 3: once the native MSXML 3 is in place,
 
 ## Recipes
 
-Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
+Recipes live in `Cellar/Recipes/Definitions`, must end in `.recipe.json` and are listed in `index.json` there. Cellar downloads that index and its recipes from `main` each time it opens and keeps them in `~/Library/Application Support/Cellar/Recipes`, so a new or fixed recipe reaches everyone as soon as it is merged, without a new release. The recipes bundled with the app are used when there is no connection. Give an entry a `minimumAppVersion` when it relies on something only newer versions of Cellar support.
+
+```json
+{
+  "recipes": [
+    { "file": "EnterpriseArchitect.recipe.json", "minimumAppVersion": "0.2.0" }
+  ]
+}
+```
+
+A recipe file looks like this:
 
 ```json
 {
@@ -91,6 +101,16 @@ Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
 }
 ```
 
+## Updates
+
+Cellar checks for new versions with [Sparkle](https://sparkle-project.org) when it opens, at most once a day, and from **Cellar → Check for Updates…**. It reads `appcast.xml` from the latest GitHub release and only installs updates signed with the project's EdDSA key.
+
+To publish a release:
+
+1. Set the new version in Xcode and choose **Product → Archive**.
+2. Run `Scripts/prepare-release.sh <version>`. It zips the archived app and writes a signed `appcast.xml` to `build/release-<version>`.
+3. Create the `v<version>` release on GitHub and attach both files.
+
 ## Architecture
 
 | Folder | Responsibility |
@@ -99,9 +119,10 @@ Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
 | `Storage` | Bottle persistence, directory layout and Windows ↔ macOS path conversion |
 | `Process` | Running external commands and writing their output to the bottle log |
 | `Wine` | Locating Wine and Winetricks, preparing prefixes, installers, launching programs |
-| `Recipes` | Loading recipes, running a full installation and finding the program that opens a document |
+| `Recipes` | Loading bundled and downloaded recipes, running a full installation and finding the program that opens a document |
 | `Icons` | Reading icons from Windows executables |
 | `Library` | `BottleLibrary`, the observable state behind the UI, and its dependency wiring |
+| `Updates` | Checking for and installing new versions of Cellar with Sparkle |
 | `Views` | SwiftUI screens |
 
 Every service sits behind a small protocol and is wired in `LibraryDependencies.live()`, so each piece can be replaced or tested in isolation.
