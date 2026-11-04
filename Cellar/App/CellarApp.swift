@@ -4,6 +4,7 @@ import SwiftUI
 struct CellarApp: App {
     @NSApplicationDelegateAdaptor(CellarAppDelegate.self) private var appDelegate
     @State private var library = BottleLibrary(dependencies: .live())
+    @State private var appUpdater = AppUpdater()
 
     var body: some Scene {
         Window("Cellar", id: "library") {
@@ -17,5 +18,8 @@ struct CellarApp: App {
                 }
         }
         .windowToolbarStyle(.unified)
+        .commands {
+            CheckForUpdatesCommand(appUpdater: appUpdater)
+        }
     }
 }
