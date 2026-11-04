@@ -1,4 +1,8 @@
-# Cellar
+<p align="center">
+  <img src="Cellar/Assets.xcassets/AppIcon.appiconset/icon_256x256@2x.png" alt="Cellar app icon" width="128" height="128">
+</p>
+
+<h1 align="center">Cellar</h1>
 
 Cellar is a native macOS app that runs Windows software on your Mac through [Wine](https://www.winehq.org). Each **bottle** is an isolated Windows environment with its own `C:` drive, settings and installed programs.
 
