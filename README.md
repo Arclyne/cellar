@@ -105,3 +105,7 @@ Recipes live in `Cellar/Recipes/Definitions` and must end in `.recipe.json`:
 | `Views` | SwiftUI screens |
 
 Every service sits behind a small protocol and is wired in `LibraryDependencies.live()`, so each piece can be replaced or tested in isolation.
+
+## License
+
+Cellar is released under the [MIT License](LICENSE). Wine, Winetricks and the Windows programs you run in Cellar are separate projects under their own licenses.
