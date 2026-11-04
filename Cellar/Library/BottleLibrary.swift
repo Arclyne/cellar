@@ -13,7 +13,7 @@ final class BottleLibrary {
     private(set) var presentedNotice: LibraryNotice?
     private(set) var isWineRuntimeAvailable = false
     private(set) var programActivities: [BottleProgram.ID: ProgramActivity] = [:]
-    let recipes: [InstallationRecipe]
+    private(set) var recipes: [InstallationRecipe]
 
     private let layout: BottleDirectoryLayout
     private let bottleStore: BottleStoring
@@ -23,6 +23,8 @@ final class BottleLibrary {
     private let recipeInstaller: RecipeInstalling
     private let programLauncher: ProgramLaunching
     private let processTerminator: BottleProcessTerminating
+    private let recipeCatalog: RecipeCataloging
+    private let recipeUpdater: RecipeUpdating
     private let documentHandlerFinder: DocumentHandlerFinding
     private let programIconProvider: ProgramIconProviding
     private let programWindowLocator: ProgramWindowLocating
@@ -39,12 +41,14 @@ final class BottleLibrary {
         recipeInstaller = dependencies.recipeInstaller
         programLauncher = dependencies.programLauncher
         processTerminator = dependencies.processTerminator
+        recipeCatalog = dependencies.recipeCatalog
+        recipeUpdater = dependencies.recipeUpdater
         documentHandlerFinder = dependencies.documentHandlerFinder
         programIconProvider = dependencies.programIconProvider
         programWindowLocator = dependencies.programWindowLocator
         appShortcutCreator = dependencies.appShortcutCreator
         fileRevealer = dependencies.fileRevealer
-        recipes = dependencies.recipes
+        recipes = dependencies.recipeCatalog.loadRecipes()
     }
 
     var selectedBottle: Bottle? {
@@ -58,6 +62,11 @@ final class BottleLibrary {
     func refresh() {
         isWineRuntimeAvailable = wineRuntimeLocator.locateWineRuntime() != nil
         reloadBottles(selecting: nil)
+    }
+
+    func updateRecipes() async {
+        guard (try? await recipeUpdater.updateRecipes()) != nil else { return }
+        recipes = recipeCatalog.loadRecipes()
     }
 
     func createBottle(named requestedName: String, windowsVersion: WindowsVersion) async {
@@ -178,7 +187,7 @@ final class BottleLibrary {
             refresh()
         }
         for documentURL in documentURLs {
-            guard let documentHandler = documentHandlerFinder.handler(forDocumentAt: documentURL, among: bottles) else {
+            guard let documentHandler = documentHandlerFinder.handler(forDocumentAt: documentURL, among: bottles, using: recipes) else {
                 presentedNotice = .noHandler(forDocumentNamed: documentURL.lastPathComponent)
                 continue
             }

@@ -62,6 +62,7 @@ struct ContentView: View {
         }
         .task {
             library.refresh()
+            await library.updateRecipes()
         }
     }
 

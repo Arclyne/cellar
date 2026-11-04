@@ -1,0 +1,8 @@
+{
+  "recipes": [
+    {
+      "file": "EnterpriseArchitect.recipe.json",
+      "minimumAppVersion": "0.2.0"
+    }
+  ]
+}

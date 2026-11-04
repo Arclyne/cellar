@@ -6,13 +6,19 @@ struct DocumentHandler {
 }
 
 protocol DocumentHandlerFinding {
-    func handler(forDocumentAt documentURL: URL, among bottles: [Bottle]) -> DocumentHandler?
+    func handler(
+        forDocumentAt documentURL: URL,
+        among bottles: [Bottle],
+        using recipes: [InstallationRecipe]
+    ) -> DocumentHandler?
 }
 
 struct RecipeDocumentHandlerFinder: DocumentHandlerFinding {
-    let recipes: [InstallationRecipe]
-
-    func handler(forDocumentAt documentURL: URL, among bottles: [Bottle]) -> DocumentHandler? {
+    func handler(
+        forDocumentAt documentURL: URL,
+        among bottles: [Bottle],
+        using recipes: [InstallationRecipe]
+    ) -> DocumentHandler? {
         let handlingExecutableNames = Set(
             recipes
                 .filter { $0.opensDocuments(withExtension: documentURL.pathExtension) }

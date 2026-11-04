@@ -9,7 +9,8 @@ struct LibraryDependencies {
     let recipeInstaller: RecipeInstalling
     let programLauncher: ProgramLaunching
     let processTerminator: BottleProcessTerminating
-    let recipes: [InstallationRecipe]
+    let recipeCatalog: RecipeCataloging
+    let recipeUpdater: RecipeUpdating
     let documentHandlerFinder: DocumentHandlerFinding
     let programIconProvider: ProgramIconProviding
     let programWindowLocator: ProgramWindowLocating
@@ -44,7 +45,11 @@ extension LibraryDependencies {
             installerRunner: installerRunner,
             programResolver: DriveCProgramResolver(layout: layout, fileManager: fileManager)
         )
-        let recipes = BundledRecipeCatalog().loadRecipes()
+        let recipeSource = RemoteRecipeSource.live(fileManager: fileManager)
+        let recipeCatalog = LayeredRecipeCatalog(layersByPrecedence: [
+            DirectoryRecipeCatalog(directory: recipeSource.downloadedRecipesDirectory, fileManager: fileManager),
+            DirectoryRecipeCatalog.bundled()
+        ])
 
         return LibraryDependencies(
             layout: layout,
@@ -55,8 +60,14 @@ extension LibraryDependencies {
             recipeInstaller: recipeInstaller,
             programLauncher: WineProgramLauncher(invocationFactory: invocationFactory, commandRunner: commandRunner),
             processTerminator: WineserverProcessTerminator(invocationFactory: invocationFactory, commandRunner: commandRunner),
-            recipes: recipes,
-            documentHandlerFinder: RecipeDocumentHandlerFinder(recipes: recipes),
+            recipeCatalog: recipeCatalog,
+            recipeUpdater: RemoteRecipeUpdater(
+                indexURL: recipeSource.indexURL,
+                downloadedRecipesDirectory: recipeSource.downloadedRecipesDirectory,
+                appVersion: recipeSource.appVersion,
+                fileManager: fileManager
+            ),
+            documentHandlerFinder: RecipeDocumentHandlerFinder(),
             programIconProvider: PortableExecutableIconProvider(),
             programWindowLocator: WindowServerProgramWindowLocator(),
             appShortcutCreator: ApplicationsFolderShortcutCreator(fileManager: fileManager),
